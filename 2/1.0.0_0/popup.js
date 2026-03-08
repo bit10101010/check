@@ -4,6 +4,7 @@ const toggleVisibility = document.getElementById('toggleVisibility');
 const loginBtn = document.getElementById('loginBtn');
 const getTokenBtn = document.getElementById('getTokenBtn');
 const saveBtn = document.getElementById('saveBtn');
+const copyTokenBtn = document.getElementById('copyTokenBtn');
 const statusMessage = document.getElementById('statusMessage');
 const savedTokensList = document.getElementById('savedTokensList');
 const clearAllBtn = document.getElementById('clearAllBtn');
@@ -29,6 +30,7 @@ function addEventListeners() {
   getTokenBtn.addEventListener('click', handleGetToken);
   loginBtn.addEventListener('click', handleLogin);
   saveBtn.addEventListener('click', handleSaveToken);
+  copyTokenBtn.addEventListener('click', handleCopyToken);
   clearAllBtn.addEventListener('click', handleClearAll);
   
   tokenInput.addEventListener('keypress', (e) => {
@@ -283,20 +285,33 @@ async function handleGetToken() {
       return;
     }
 
-    const [{ result }] = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: extractTokenFromPage
+    // Primary path: use injected script + cookie passback (v1 architecture)
+    const cookieToken = await new Promise((resolve) => {
+      chrome.tabs.sendMessage(tab.id, { action: 'openExtensionPopup' }, (token) => {
+        resolve(token || null);
+      });
     });
 
-    if (!result) {
+    let token = cookieToken;
+
+    // Fallback path: direct executeScript extraction
+    if (!token) {
+      const [{ result }] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: extractTokenFromPage
+      });
+      token = result || null;
+    }
+
+    if (!token) {
       showStatus('error', 'Token not found. Open profile page and retry');
       return;
     }
 
-    tokenInput.value = result;
-    navigator.clipboard.writeText(result).catch(() => undefined);
+    tokenInput.value = token;
+    navigator.clipboard.writeText(token).catch(() => undefined);
     showStatus('success', 'Token fetched and copied to clipboard');
-    checkToken(result);
+    checkToken(token);
   } catch (error) {
     console.error('Get token error:', error);
     showStatus('error', 'Unable to get token: ' + error.message);
@@ -304,6 +319,18 @@ async function handleGetToken() {
     getTokenBtn.classList.remove('loading');
     getTokenBtn.querySelector('.btn-icon').className = 'btn-icon fa-solid fa-fingerprint';
   }
+}
+
+function handleCopyToken() {
+  const token = tokenInput.value.trim();
+  if (!token) {
+    showStatus('error', 'No token to copy');
+    return;
+  }
+
+  navigator.clipboard.writeText(token)
+    .then(() => showStatus('success', 'Token copied to clipboard'))
+    .catch(() => showStatus('error', 'Unable to copy token'));
 }
 
 // Function injected in page context to read token from Discord internals
