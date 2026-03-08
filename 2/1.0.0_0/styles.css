@@ -566,7 +566,14 @@ body {
 .button-section {
   display: flex;
   gap: 12px;
+  margin-bottom: 12px;
+}
+
+.token-hint {
   margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
 }
 
 .btn {

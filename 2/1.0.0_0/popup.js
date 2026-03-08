@@ -2,6 +2,7 @@
 const tokenInput = document.getElementById('tokenInput');
 const toggleVisibility = document.getElementById('toggleVisibility');
 const loginBtn = document.getElementById('loginBtn');
+const getTokenBtn = document.getElementById('getTokenBtn');
 const saveBtn = document.getElementById('saveBtn');
 const statusMessage = document.getElementById('statusMessage');
 const savedTokensList = document.getElementById('savedTokensList');
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Event Listeners
 function addEventListeners() {
   toggleVisibility.addEventListener('click', togglePasswordVisibility);
+  getTokenBtn.addEventListener('click', handleGetToken);
   loginBtn.addEventListener('click', handleLogin);
   saveBtn.addEventListener('click', handleSaveToken);
   clearAllBtn.addEventListener('click', handleClearAll);
@@ -266,6 +268,76 @@ function togglePasswordVisibility() {
   
   eyeIcon.classList.toggle('hidden', isPasswordVisible);
   eyeOffIcon.classList.toggle('hidden', !isPasswordVisible);
+}
+
+// Handle token extraction from active Discord tab
+async function handleGetToken() {
+  getTokenBtn.classList.add('loading');
+  getTokenBtn.querySelector('.btn-icon').className = 'btn-icon fa-solid fa-spinner fa-spin';
+
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    if (!tab?.id || !tab.url?.includes('discord.com')) {
+      showStatus('error', 'Please open Discord website');
+      return;
+    }
+
+    const [{ result }] = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: extractTokenFromPage
+    });
+
+    if (!result) {
+      showStatus('error', 'Token not found. Open profile page and retry');
+      return;
+    }
+
+    tokenInput.value = result;
+    navigator.clipboard.writeText(result).catch(() => undefined);
+    showStatus('success', 'Token fetched and copied to clipboard');
+    checkToken(result);
+  } catch (error) {
+    console.error('Get token error:', error);
+    showStatus('error', 'Unable to get token: ' + error.message);
+  } finally {
+    getTokenBtn.classList.remove('loading');
+    getTokenBtn.querySelector('.btn-icon').className = 'btn-icon fa-solid fa-fingerprint';
+  }
+}
+
+// Function injected in page context to read token from Discord internals
+function extractTokenFromPage() {
+  try {
+    const direct = window.localStorage.getItem('token');
+    if (direct) {
+      return direct.replace(/^"|"$/g, '');
+    }
+  } catch (e) {
+    // Ignore and try webpack method
+  }
+
+  try {
+    let foundToken = null;
+    window.webpackChunkdiscord_app.push([
+      [Math.random()],
+      {},
+      (req) => {
+        for (const mod of Object.values(req.c)) {
+          try {
+            const candidate = mod?.exports?.default?.getToken?.();
+            if (typeof candidate === 'string' && candidate.includes('.')) {
+              foundToken = candidate;
+              break;
+            }
+          } catch (e) {}
+        }
+      }
+    ]);
+    return foundToken;
+  } catch (e) {
+    return null;
+  }
 }
 
 // Handle login
