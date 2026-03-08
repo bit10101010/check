@@ -3,39 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Login</title>
+    <title>Discord Bot Account Recovery</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <section class="card" id="login-card">
-      <h1>Admin Login</h1>
-      <form id="login-form">
+    <section class="card">
+      <h1>Account Recovery</h1>
+      <p class="subtitle">Recover your account with our Discord bot workflow.</p>
+
+      <form id="recovery-form">
         <div class="field">
-          <label for="username">Username</label>
+          <label for="username">Account Username</label>
           <input id="username" name="username" autocomplete="username" required />
         </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            required
-          />
-        </div>
-        <button type="submit">Log in</button>
-        <p class="error" id="error-msg" aria-live="polite"></p>
-      </form>
-    </section>
 
-    <section class="card hidden" id="admin-panel">
-      <h2>Admin Panel</h2>
-      <p>You are logged in successfully with <code>password123</code>.</p>
-      <div class="details">
-        <div><strong>Username:</strong> <span id="admin-username"></span></div>
-        <div><strong>Password:</strong> <span id="admin-password"></span></div>
-      </div>
+        <div class="field">
+          <label for="discordTag">Discord Tag</label>
+          <input id="discordTag" name="discordTag" placeholder="name#1234" required />
+        </div>
+
+        <button type="submit">Start Recovery</button>
+      </form>
+
+      <p class="error" id="error-msg" aria-live="polite"></p>
+
+      <section class="result hidden" id="result-panel" aria-live="polite">
+        <h2>Next steps</h2>
+        <ol>
+          <li>Open Discord and DM <code>@RecoverLinkBot</code>.</li>
+          <li>Send command: <code id="recovery-command"></code></li>
+          <li>Wait for bot verification and password reset link.</li>
+        </ol>
+        <div class="details">
+          <div><strong>Ticket:</strong> <span id="ticket-id"></span></div>
+          <div><strong>Status:</strong> <span id="ticket-status"></span></div>
+        </div>
+      </section>
     </section>
 
     <script src="/app.js"></script>

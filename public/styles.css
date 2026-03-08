@@ -8,11 +8,11 @@ body {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  background: radial-gradient(circle at top, #1f2937, #0f172a 65%);
 }
 
 .card {
-  width: min(92vw, 360px);
+  width: min(92vw, 460px);
   background: #ffffff;
   border-radius: 12px;
   padding: 24px;
@@ -21,8 +21,14 @@ body {
 
 h1,
 h2 {
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.subtitle {
   margin: 0 0 16px;
   text-align: center;
+  color: #334155;
 }
 
 .field {
@@ -52,32 +58,40 @@ button {
   padding: 11px;
   font-size: 1rem;
   color: #ffffff;
-  background: #2563eb;
+  background: #5865f2;
   cursor: pointer;
 }
 
 button:hover {
-  background: #1d4ed8;
+  background: #4752c4;
 }
 
 .error {
-  margin-top: 10px;
+  margin: 10px 0 0;
   color: #dc2626;
   text-align: center;
   min-height: 1.2em;
 }
 
-.hidden {
-  display: none;
+.result {
+  margin-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+}
+
+.result ol {
+  padding-left: 18px;
+  margin: 0 0 12px;
+  color: #1f2937;
 }
 
 .details {
   background: #f1f5f9;
   border-radius: 8px;
-  padding: 14px;
+  padding: 12px;
   line-height: 1.6;
 }
 
-.details strong {
-  color: #0f172a;
+.hidden {
+  display: none;
 }

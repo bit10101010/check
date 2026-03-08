@@ -41,8 +41,17 @@ function serveStaticFile(reqPath, res) {
   });
 }
 
+function createRecoveryTicket(username) {
+  const token = Math.random().toString(36).slice(2, 8).toUpperCase();
+  return {
+    ticketId: `TICKET-${Date.now().toString(36).toUpperCase()}`,
+    recoveryCode: `${username.slice(0, 3).toUpperCase()}-${token}`,
+    status: 'Pending Discord verification',
+  };
+}
+
 const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/api/login') {
+  if (req.method === 'POST' && req.url === '/api/recovery') {
     let body = '';
 
     req.on('data', (chunk) => {
@@ -54,16 +63,29 @@ const server = http.createServer((req, res) => {
 
     req.on('end', () => {
       try {
-        const { username = '', password = '' } = JSON.parse(body || '{}');
+        const { username = '', discordTag = '' } = JSON.parse(body || '{}');
 
-        if (password === 'password123') {
-          sendJson(res, 200, { success: true, username, password });
+        if (!username || !discordTag) {
+          sendJson(res, 400, {
+            success: false,
+            message: 'Username and Discord tag are required.',
+          });
           return;
         }
 
-        sendJson(res, 401, {
-          success: false,
-          message: 'Invalid password. Try password123.',
+        if (!discordTag.includes('#')) {
+          sendJson(res, 400, {
+            success: false,
+            message: 'Discord tag must look like name#1234.',
+          });
+          return;
+        }
+
+        const ticket = createRecoveryTicket(username);
+
+        sendJson(res, 200, {
+          success: true,
+          ...ticket,
         });
       } catch (error) {
         sendJson(res, 400, { success: false, message: 'Invalid request body.' });
