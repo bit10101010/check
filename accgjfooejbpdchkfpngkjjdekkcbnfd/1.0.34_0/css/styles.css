@@ -1,0 +1,105 @@
+body {
+	background-color: #596aed
+}
+
+.contact-label {
+	color: #00a8e5;
+	font-family: 'Noto Sans JP', sans-serif;
+	text-decoration: none;
+}
+
+.container {
+	color: white;
+	width: 300px
+}
+
+.inner-container {
+	align-items: center;
+	background-color: #36393f;
+	border-radius: 4px;
+	display: flex;
+	height: 200px;
+	width: 300px;
+	padding-top: 20px;
+}
+
+.invisible-box {
+	display: flex;
+	flex-direction: column;
+	height: auto;
+	margin-left: 15px;
+	width: 270px;
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+}
+
+.token-label {
+	color: #b9bbbe;
+	font-family: 'Secular One', sans-serif;
+	font-size: 15px;
+	margin-top: -10px
+}
+
+.unselectable {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none
+}
+
+.getToken {
+	border: none;
+	padding: 10px;
+	display: flex;
+	font-size: 13px;
+	margin-top: 15px;
+	color: #fcfdff;
+	border-radius: 4px;
+	align-items: center;
+	justify-content: center;
+	background-color: #596aed;
+	transition: all .1s ease-in;
+	font-family: 'Lato', sans-serif;
+}
+
+#token {
+	color: #d5d6d7;
+	background-color: #303339;
+	border: 1px solid #222428;
+	height: 25px;
+	outline: none;
+	margin-top: -10px;
+	border-radius: 4px;
+	padding-left: 10px;
+	margin-bottom: 5px;
+	font-family: 'Lato', sans-serif;
+	padding: 6px;
+}
+
+.getToken:hover {
+	background-color: #4856c0;
+	cursor: pointer
+}
+
+.roww-2 {
+	display: flex;
+	justify-content: space-between;
+}
+
+.notice {
+	color: #b9bbbe;
+	font-family: 'Secular One', sans-serif;
+	font-size: 14px;
+}
+
+.notice-link {
+	color: #fff;
+}
+
+
+.notice-red {
+	color: #d72323;
+	font-size: 16px;
+}
