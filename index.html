@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      }
+
+      .card {
+        width: min(92vw, 360px);
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      }
+
+      h1,
+      h2 {
+        margin: 0 0 16px;
+        text-align: center;
+      }
+
+      .field {
+        margin-bottom: 14px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+        color: #1f2937;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+
+      button {
+        width: 100%;
+        border: none;
+        border-radius: 8px;
+        padding: 11px;
+        font-size: 1rem;
+        color: #ffffff;
+        background: #2563eb;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+      }
+
+      .error {
+        margin-top: 10px;
+        color: #dc2626;
+        text-align: center;
+        min-height: 1.2em;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .details {
+        background: #f1f5f9;
+        border-radius: 8px;
+        padding: 14px;
+        line-height: 1.6;
+      }
+
+      .details strong {
+        color: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="card" id="login-card">
+      <h1>Admin Login</h1>
+      <form id="login-form">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" name="username" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+        <button type="submit">Log in</button>
+        <p class="error" id="error-msg" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="card hidden" id="admin-panel">
+      <h2>Admin Panel</h2>
+      <p>You are logged in successfully with <code>password123</code>.</p>
+      <div class="details">
+        <div><strong>Username:</strong> <span id="admin-username"></span></div>
+        <div><strong>Password:</strong> <span id="admin-password"></span></div>
+      </div>
+    </section>
+
+    <script>
+      const loginForm = document.getElementById('login-form');
+      const loginCard = document.getElementById('login-card');
+      const adminPanel = document.getElementById('admin-panel');
+      const adminUsername = document.getElementById('admin-username');
+      const adminPassword = document.getElementById('admin-password');
+      const errorMsg = document.getElementById('error-msg');
+
+      loginForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (password === 'password123') {
+          adminUsername.textContent = username;
+          adminPassword.textContent = password;
+          errorMsg.textContent = '';
+          loginCard.classList.add('hidden');
+          adminPanel.classList.remove('hidden');
+        } else {
+          errorMsg.textContent = 'Invalid password. Try password123.';
+        }
+      });
+    </script>
+  </body>
+</html>
