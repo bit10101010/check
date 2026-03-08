@@ -1,36 +1,39 @@
-const loginForm = document.getElementById('login-form');
+const recoveryForm = document.getElementById('recovery-form');
 const errorMsg = document.getElementById('error-msg');
+const resultPanel = document.getElementById('result-panel');
+const recoveryCommand = document.getElementById('recovery-command');
+const ticketId = document.getElementById('ticket-id');
+const ticketStatus = document.getElementById('ticket-status');
 
-loginForm.addEventListener('submit', async (event) => {
+recoveryForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
+  errorMsg.textContent = '';
+  resultPanel.classList.add('hidden');
+
   const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
+  const discordTag = document.getElementById('discordTag').value.trim();
 
   try {
-    const response = await fetch('/api/login', {
+    const response = await fetch('/api/recovery', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, discordTag }),
     });
 
     const data = await response.json();
 
-    if (response.ok && data.success) {
-      sessionStorage.setItem(
-        'auth',
-        JSON.stringify({
-          username: data.username,
-          loginAt: new Date().toISOString(),
-        }),
-      );
-      window.location.href = '/admin.html';
+    if (!response.ok || !data.success) {
+      errorMsg.textContent = data.message || 'Unable to start recovery.';
       return;
     }
 
-    errorMsg.textContent = data.message || 'Login failed.';
+    recoveryCommand.textContent = `/recover ${data.recoveryCode}`;
+    ticketId.textContent = data.ticketId;
+    ticketStatus.textContent = data.status;
+    resultPanel.classList.remove('hidden');
   } catch (error) {
     errorMsg.textContent = 'Server error. Please try again.';
   }
