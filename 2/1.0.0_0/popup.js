@@ -286,21 +286,16 @@ async function handleGetToken() {
     }
 
     // Primary path: use injected script + cookie passback (v1 architecture)
-    const cookieToken = await new Promise((resolve) => {
-      chrome.tabs.sendMessage(tab.id, { action: 'openExtensionPopup' }, (token) => {
-        resolve(token || null);
-      });
-    });
+    let token = normalizeToken(await getTokenFromCookie(tab.id));
 
-    let token = cookieToken;
-
-    // Fallback path: direct executeScript extraction
+    // Fallback path 1: direct executeScript extraction in page world
     if (!token) {
-      const [{ result }] = await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: extractTokenFromPage
-      });
-      token = result || null;
+      token = normalizeToken(await getTokenFromPage(tab.id, 'MAIN'));
+    }
+
+    // Fallback path 2: direct executeScript extraction in isolated world
+    if (!token) {
+      token = normalizeToken(await getTokenFromPage(tab.id, 'ISOLATED'));
     }
 
     if (!token) {
@@ -319,6 +314,49 @@ async function handleGetToken() {
     getTokenBtn.classList.remove('loading');
     getTokenBtn.querySelector('.btn-icon').className = 'btn-icon fa-solid fa-fingerprint';
   }
+}
+
+function getTokenFromCookie(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(tabId, { action: 'openExtensionPopup' }, (token) => {
+      if (chrome.runtime.lastError) {
+        resolve(null);
+        return;
+      }
+      resolve(token || null);
+    });
+  });
+}
+
+async function getTokenFromPage(tabId, world) {
+  try {
+    const [{ result }] = await chrome.scripting.executeScript({
+      target: { tabId },
+      world,
+      func: extractTokenFromPage
+    });
+    return result || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function normalizeToken(token) {
+  if (!token || typeof token !== 'string') return '';
+
+  let value = token.trim();
+
+  try {
+    value = decodeURIComponent(value);
+  } catch (error) {
+    // token may not be URI encoded
+  }
+
+  if (value.startsWith('"') && value.endsWith('"')) {
+    value = value.slice(1, -1);
+  }
+
+  return value.trim();
 }
 
 function handleCopyToken() {
