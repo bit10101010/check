@@ -11,6 +11,12 @@ const clearAllBtn = document.getElementById('clearAllBtn');
 const tokenInfoCard = document.getElementById('tokenInfo');
 
 // State
+const POPUP_LOG_PREFIX = '[Discord Token Login][popup]';
+
+function log(...args) {
+  console.log(POPUP_LOG_PREFIX, ...args);
+}
+
 let isPasswordVisible = false;
 let savedTokens = [];
 let checkTokenTimeout = null;
@@ -274,11 +280,14 @@ function togglePasswordVisibility() {
 
 // Handle token extraction from active Discord tab
 async function handleGetToken() {
+  log('Get token clicked');
   getTokenBtn.classList.add('loading');
   getTokenBtn.querySelector('.btn-icon').className = 'btn-icon fa-solid fa-spinner fa-spin';
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    log('Active tab info:', { id: tab?.id, url: tab?.url });
 
     if (!tab?.id || !tab.url?.includes('discord.com')) {
       showStatus('error', 'Please open Discord website');
@@ -287,28 +296,34 @@ async function handleGetToken() {
 
     // Primary path: use injected script + cookie passback (v1 architecture)
     let token = normalizeToken(await getTokenFromCookie(tab.id));
+    log('Cookie/message extraction result:', token ? 'token found' : 'no token');
 
     // Fallback path 1: direct executeScript extraction in page world
     if (!token) {
       token = normalizeToken(await getTokenFromPage(tab.id, 'MAIN'));
+      log('MAIN world extraction result:', token ? 'token found' : 'no token');
     }
 
     // Fallback path 2: direct executeScript extraction in isolated world
     if (!token) {
       token = normalizeToken(await getTokenFromPage(tab.id, 'ISOLATED'));
+      log('ISOLATED world extraction result:', token ? 'token found' : 'no token');
     }
 
     if (!token) {
+      log('Unable to extract token from any method');
       showStatus('error', 'Token not found. Open profile page and retry');
       return;
     }
 
     tokenInput.value = token;
+    log('Token extracted and inserted into input');
     navigator.clipboard.writeText(token).catch(() => undefined);
     showStatus('success', 'Token fetched and copied to clipboard');
     checkToken(token);
   } catch (error) {
     console.error('Get token error:', error);
+    log('Get token flow failed:', error?.message || error);
     showStatus('error', 'Unable to get token: ' + error.message);
   } finally {
     getTokenBtn.classList.remove('loading');
@@ -317,26 +332,32 @@ async function handleGetToken() {
 }
 
 function getTokenFromCookie(tabId) {
+  log('Requesting token from content script message bridge');
   return new Promise((resolve) => {
     chrome.tabs.sendMessage(tabId, { action: 'openExtensionPopup' }, (token) => {
       if (chrome.runtime.lastError) {
+        log('Content script message failed:', chrome.runtime.lastError.message);
         resolve(null);
         return;
       }
+      log('Content script message response received:', token ? 'token found' : 'empty response');
       resolve(token || null);
     });
   });
 }
 
 async function getTokenFromPage(tabId, world) {
+  log('Attempting executeScript extraction in world:', world);
   try {
     const [{ result }] = await chrome.scripting.executeScript({
       target: { tabId },
       world,
       func: extractTokenFromPage
     });
+    log('executeScript extraction completed for world', world, result ? 'with token' : 'without token');
     return result || null;
   } catch (error) {
+    log('executeScript extraction failed for world', world, error?.message || error);
     return null;
   }
 }
@@ -361,14 +382,21 @@ function normalizeToken(token) {
 
 function handleCopyToken() {
   const token = tokenInput.value.trim();
+  log('Copy token requested; token present:', Boolean(token));
   if (!token) {
     showStatus('error', 'No token to copy');
     return;
   }
 
   navigator.clipboard.writeText(token)
-    .then(() => showStatus('success', 'Token copied to clipboard'))
-    .catch(() => showStatus('error', 'Unable to copy token'));
+    .then(() => {
+      log('Copy token succeeded');
+      showStatus('success', 'Token copied to clipboard');
+    })
+    .catch((error) => {
+      log('Copy token failed:', error?.message || error);
+      showStatus('error', 'Unable to copy token');
+    });
 }
 
 // Function injected in page context to read token from Discord internals

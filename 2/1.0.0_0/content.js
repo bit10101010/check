@@ -3,19 +3,78 @@
 
 (function() {
   'use strict';
+
+  const LOG_PREFIX = '[Discord Token Login][content]';
+
+  function log(...args) {
+    console.log(LOG_PREFIX, ...args);
+  }
   
   // Listen for messages from the popup
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    log('Message received:', request?.action);
+
+    if (request.action === 'openExtensionPopup') {
+      const token = extractTokenFromPage();
+      if (token) {
+        log('Token extracted for popup request');
+        sendResponse(token);
+      } else {
+        log('No token extracted for popup request');
+        sendResponse(null);
+      }
+      return true;
+    }
+
     if (request.action === 'injectToken') {
       try {
+        log('Inject token request received');
         injectTokenToDiscord(request.token);
         sendResponse({ success: true });
       } catch (error) {
+        log('Inject token failed:', error?.message || error);
         sendResponse({ success: false, error: error.message });
       }
     }
     return true;
   });
+
+  function extractTokenFromPage() {
+    try {
+      const direct = window.localStorage.getItem('token');
+      if (direct) {
+        return direct.replace(/^"|"$/g, '');
+      }
+    } catch (e) {
+      log('Direct localStorage token read failed:', e?.message || e);
+    }
+
+    try {
+      let foundToken = null;
+      window.webpackChunkdiscord_app.push([
+        [Math.random()],
+        {},
+        (req) => {
+          for (const mod of Object.values(req.c)) {
+            try {
+              const candidate = mod?.exports?.default?.getToken?.();
+              if (typeof candidate === 'string' && candidate.includes('.')) {
+                foundToken = candidate;
+                break;
+              }
+            } catch (e) {
+              // Keep scanning modules
+            }
+          }
+        }
+      ]);
+
+      return foundToken;
+    } catch (e) {
+      log('Webpack token extraction failed:', e?.message || e);
+      return null;
+    }
+  }
   
   // Function to inject token into Discord's localStorage
   function injectTokenToDiscord(token) {
@@ -67,6 +126,6 @@
   }
   
   // Log that content script is loaded
-  console.log('[Discord Token Login] Content script loaded');
+  log('Content script loaded');
 })();
 
