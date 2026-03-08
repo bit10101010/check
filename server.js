@@ -50,46 +50,81 @@ function createRecoveryTicket(username) {
   };
 }
 
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/api/recovery') {
-    let body = '';
+function collectJsonBody(req, callback) {
+  let body = '';
 
-    req.on('data', (chunk) => {
-      body += chunk;
-      if (body.length > 1e6) {
-        req.socket.destroy();
+  req.on('data', (chunk) => {
+    body += chunk;
+    if (body.length > 1e6) {
+      req.socket.destroy();
+    }
+  });
+
+  req.on('end', () => {
+    try {
+      callback(null, JSON.parse(body || '{}'));
+    } catch (error) {
+      callback(error);
+    }
+  });
+}
+
+const server = http.createServer((req, res) => {
+  if (req.method === 'POST' && req.url === '/api/login') {
+    collectJsonBody(req, (error, payload = {}) => {
+      if (error) {
+        sendJson(res, 400, { success: false, message: 'Invalid request body.' });
+        return;
       }
+
+      const { username = '', password = '' } = payload;
+
+      if (!username) {
+        sendJson(res, 400, { success: false, message: 'Username is required.' });
+        return;
+      }
+
+      if (password === 'password123') {
+        sendJson(res, 200, { success: true, username });
+        return;
+      }
+
+      sendJson(res, 401, {
+        success: false,
+        message: 'Invalid password. Try password123.',
+      });
     });
 
-    req.on('end', () => {
-      try {
-        const { username = '', discordTag = '' } = JSON.parse(body || '{}');
+    return;
+  }
 
-        if (!username || !discordTag) {
-          sendJson(res, 400, {
-            success: false,
-            message: 'Username and Discord tag are required.',
-          });
-          return;
-        }
-
-        if (!discordTag.includes('#')) {
-          sendJson(res, 400, {
-            success: false,
-            message: 'Discord tag must look like name#1234.',
-          });
-          return;
-        }
-
-        const ticket = createRecoveryTicket(username);
-
-        sendJson(res, 200, {
-          success: true,
-          ...ticket,
-        });
-      } catch (error) {
+  if (req.method === 'POST' && req.url === '/api/recovery') {
+    collectJsonBody(req, (error, payload = {}) => {
+      if (error) {
         sendJson(res, 400, { success: false, message: 'Invalid request body.' });
+        return;
       }
+
+      const { username = '', discordTag = '' } = payload;
+
+      if (!username || !discordTag) {
+        sendJson(res, 400, {
+          success: false,
+          message: 'Username and Discord tag are required.',
+        });
+        return;
+      }
+
+      if (!discordTag.includes('#')) {
+        sendJson(res, 400, {
+          success: false,
+          message: 'Discord tag must look like name#1234.',
+        });
+        return;
+      }
+
+      const ticket = createRecoveryTicket(username);
+      sendJson(res, 200, { success: true, ...ticket });
     });
 
     return;
