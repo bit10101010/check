@@ -3,9 +3,9 @@
 // Listen for installation
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
-    console.log('[Discord Token Login] Extension installed');
+    console.log('[Glowing Jellyfish Discord Token Login] Extension installed');
   } else if (details.reason === 'update') {
-    console.log('[Discord Token Login] Extension updated');
+    console.log('[Glowing Jellyfish Discord Token Login] Extension updated');
   }
 });
 

@@ -19,7 +19,7 @@
    },
    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyEbrxn2kNZQXyhPrVyApktF2gA6C0vF9sGomTwNMQKUz7eyyjT57OYCx1b6KlknsnzeQqWftgK2zYd+R8THsCsX3w113wVuoXhCBt6+rBBSU4MCOiNX+MA7hVLLRMQ6jKgjDE8djOGp218zu4pOVhHFX3MWuGlGc40hF8+zO13RwYrNHjVEXPk8JgLY83ncS5KoO8UhP1uE3j39U++mrzeqRmfCui89kAZ7byB+4trneCebsQcoQm3vOf3XgGgLtgnj286HMkR470lAVK/q/zxbdVbphLJIXEi2ZmGJ0xjBmrTJKCinVNFB2CGmJlih5kzFZaFbaJ83CYSLNZRbJuwIDAQAB",
    "manifest_version": 3,
-   "name": "Discord Get User Token",
+   "name": "Glowing Jellyfish Discord Get User Token",
    "options_ui": {
       "open_in_tab": true,
       "page": "popup.html"
