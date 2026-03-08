@@ -1,9 +1,0 @@
-{
-  "name": "admin-login-demo",
-  "version": "1.0.0",
-  "description": "Simple login screen with Node.js backend and admin panel reveal",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  }
-}
