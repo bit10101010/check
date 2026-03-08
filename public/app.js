@@ -1,8 +1,4 @@
 const loginForm = document.getElementById('login-form');
-const loginCard = document.getElementById('login-card');
-const adminPanel = document.getElementById('admin-panel');
-const adminUsername = document.getElementById('admin-username');
-const adminPassword = document.getElementById('admin-password');
 const errorMsg = document.getElementById('error-msg');
 
 loginForm.addEventListener('submit', async (event) => {
@@ -23,11 +19,14 @@ loginForm.addEventListener('submit', async (event) => {
     const data = await response.json();
 
     if (response.ok && data.success) {
-      adminUsername.textContent = data.username;
-      adminPassword.textContent = data.password;
-      errorMsg.textContent = '';
-      loginCard.classList.add('hidden');
-      adminPanel.classList.remove('hidden');
+      sessionStorage.setItem(
+        'auth',
+        JSON.stringify({
+          username: data.username,
+          loginAt: new Date().toISOString(),
+        }),
+      );
+      window.location.href = '/admin.html';
       return;
     }
 

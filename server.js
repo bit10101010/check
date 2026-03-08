@@ -56,8 +56,13 @@ const server = http.createServer((req, res) => {
       try {
         const { username = '', password = '' } = JSON.parse(body || '{}');
 
+        if (!username) {
+          sendJson(res, 400, { success: false, message: 'Username is required.' });
+          return;
+        }
+
         if (password === 'password123') {
-          sendJson(res, 200, { success: true, username, password });
+          sendJson(res, 200, { success: true, username });
           return;
         }
 
