@@ -565,12 +565,37 @@ body {
 /* Buttons */
 .button-section {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
+  margin-bottom: 12px;
+}
+
+.token-hint {
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.token-hint-link {
+  color: var(--text-primary);
+}
+
+.token-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
   margin-bottom: 16px;
 }
 
+.token-links a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-size: 12px;
+}
+
 .btn {
-  flex: 1;
+  flex: 1 1 calc(50% - 6px);
   display: flex;
   align-items: center;
   justify-content: center;
