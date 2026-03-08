@@ -10,11 +10,19 @@ exports.handler = async (event) => {
   try {
     const { username = '', password = '' } = JSON.parse(event.body || '{}');
 
+    if (!username) {
+      return {
+        statusCode: 400,
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({ success: false, message: 'Username is required.' }),
+      };
+    }
+
     if (password === 'password123') {
       return {
         statusCode: 200,
         headers: { 'content-type': 'application/json; charset=utf-8' },
-        body: JSON.stringify({ success: true, username, password }),
+        body: JSON.stringify({ success: true, username }),
       };
     }
 

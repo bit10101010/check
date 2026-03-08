@@ -3,12 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Login</title>
+    <title>User Login</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <section class="card" id="login-card">
-      <h1>Admin Login</h1>
+      <h1>User Login</h1>
+      <p class="subtitle">Sign in to continue to the admin panel.</p>
       <form id="login-form">
         <div class="field">
           <label for="username">Username</label>
@@ -25,17 +26,9 @@
           />
         </div>
         <button type="submit">Log in</button>
+        <p class="hint">Demo password: <code>password123</code></p>
         <p class="error" id="error-msg" aria-live="polite"></p>
       </form>
-    </section>
-
-    <section class="card hidden" id="admin-panel">
-      <h2>Admin Panel</h2>
-      <p>You are logged in successfully with <code>password123</code>.</p>
-      <div class="details">
-        <div><strong>Username:</strong> <span id="admin-username"></span></div>
-        <div><strong>Password:</strong> <span id="admin-password"></span></div>
-      </div>
     </section>
 
     <script src="/app.js"></script>

@@ -12,7 +12,7 @@ body {
 }
 
 .card {
-  width: min(92vw, 360px);
+  width: min(92vw, 380px);
   background: #ffffff;
   border-radius: 12px;
   padding: 24px;
@@ -21,8 +21,14 @@ body {
 
 h1,
 h2 {
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.subtitle {
   margin: 0 0 16px;
   text-align: center;
+  color: #334155;
 }
 
 .field {
@@ -60,6 +66,15 @@ button:hover {
   background: #1d4ed8;
 }
 
+button.secondary {
+  margin-top: 16px;
+  background: #334155;
+}
+
+button.secondary:hover {
+  background: #1f2937;
+}
+
 .error {
   margin-top: 10px;
   color: #dc2626;
@@ -67,8 +82,12 @@ button:hover {
   min-height: 1.2em;
 }
 
-.hidden {
-  display: none;
+.hint {
+  margin-top: 10px;
+  margin-bottom: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #475569;
 }
 
 .details {
